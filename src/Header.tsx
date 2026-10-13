@@ -1,5 +1,3 @@
-import type { Action } from "./types";
-
 export default function Header({ count, sum, onClear }: {count: number, sum: number, onClear: () => void }) {
     return (
         <>

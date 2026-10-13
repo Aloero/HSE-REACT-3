@@ -11,11 +11,11 @@ export function useSearchBar(init_val: string) : [query: string, setQuery: React
     return [query, setQuery];
 }
 
-export default function SearchBar({ setQuery, onlyInStock, setOnlyInStock, inputRef, n }: {setQuery: React.Dispatch<React.SetStateAction<string>>, onlyInStock: Boolean, setOnlyInStock: React.Dispatch<React.SetStateAction<Boolean>>, inputRef: React.RefObject<HTMLInputElement | null>, n: number }) {
+export default function SearchBar({ handleSearch, query, onlyInStock, setOnlyInStock, inputRef, n }: {handleSearch: (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => void, query: string, onlyInStock: boolean, setOnlyInStock: React.Dispatch<React.SetStateAction<boolean>>, inputRef: React.RefObject<HTMLInputElement | null>, n: number }) {
     return (
         <>
             <div className="searchBar">
-                <input ref={inputRef} className="input" type="text" placeholder={"Поиск по названию.."} onChange={(x) => setQuery(x.target.value)}/>
+                <input ref={inputRef} className="input" type="text" value={query} placeholder={"Поиск по названию.."} onChange={(e) => handleSearch(e)}/> 
                 <button className={`button ${onlyInStock ? "active" : ""}`} onClick={() => setOnlyInStock((x) => !x)}></button>
                 <p className="text">Только в наличии</p>
                 <span className="text right">Найдено: {n}</span>
