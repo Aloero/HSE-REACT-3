@@ -1,3 +1,5 @@
+import { useReducer } from "react";
+
 export const products = Array.from({ length: 5000 }, (_, i) => ({
     id: i + 1,
     title: `Товар ${i + 1}`,

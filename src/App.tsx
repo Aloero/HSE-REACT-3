@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { act, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import './App.css'
+import type { State, Action, Item } from "./types"
 
 import SearchBar, { useSearchBar } from './SearchBar'
 import Header from './Header'
@@ -20,19 +18,59 @@ function App() {
 
   const [count, setCount] = useState(0);
   const [sum, SetSum] = useState(0);
-  const [clear, setClear] = useState(false);
 
-  const inputRef = useRef(null);
+  const initialCart = { items: [] };
+
+  function cartReducer(state: State, action: Action) : State {
+      switch (action.type) {
+          case "add": {
+              setCount((x) => x + 1);
+              SetSum((x) => x + action.item.price)
+              const idx: number = state.items.findIndex(item => item.id == action.item.id);
+              if (idx == -1) {
+                action.item.qty = 1;
+                return { items: [...state.items, action.item]}
+              }
+              action.item.qty = state.items[idx].qty + 1;
+              return { items: [...state.items.slice(0, idx), ...state.items.slice(idx + 1), action.item]}
+            }
+          case "remove": {
+              const idx: number = state.items.findIndex(item => item.id == action.item.id);
+              if (idx == -1) {
+                return { items: [...state.items]};
+              }
+              setCount((x) => x - state.items[idx].qty);
+              SetSum((x) => x - state.items[idx].price * state.items[idx].qty)
+              return { items: state.items.filter((item) => item.id !== action.item.id)}
+              // if (state.items[idx].qty == 1) {
+              //   return { items: [...state.items.slice(0, idx), ...state.items.slice(idx + 1)]};
+              // } else {
+              //   state.items[idx].qty -= 1;
+              //   return { items: [...state.items] };
+              // }
+            }
+          case "clear":
+              setCount(() => 0);
+              SetSum(() => 0)
+              return initialCart;
+          default:
+              return state;
+      }
+  }
+
+  const [cart, dispatch] = useReducer(cartReducer, initialCart);
+
+  const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    inputRef.current.focus();
+    inputRef.current?.focus();
   }, []);
 
   return (
     <>
       <div className='site'>
-        <Header count={count} sum={sum} setClear={setClear}></Header>
+        <Header count={count} sum={sum} dispatch={dispatch}></Header>
         <SearchBar setQuery={setQuery} onlyInStock={onlyInStock} setOnlyInStock={setOnlyInStock} inputRef={inputRef} n={visible.length}/>
-        <ProductList products={visible} />
+        <ProductList products={visible} dispatch={dispatch} cart={cart} />
       </div>
     </>
   )

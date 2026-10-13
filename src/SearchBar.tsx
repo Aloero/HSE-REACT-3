@@ -11,7 +11,7 @@ export function useSearchBar(init_val: string) : [query: string, setQuery: React
     return [query, setQuery];
 }
 
-export default function SearchBar({ setQuery, onlyInStock, setOnlyInStock, inputRef, n }) {
+export default function SearchBar({ setQuery, onlyInStock, setOnlyInStock, inputRef, n }: {setQuery: React.Dispatch<React.SetStateAction<string>>, onlyInStock: Boolean, setOnlyInStock: React.Dispatch<React.SetStateAction<Boolean>>, inputRef: React.RefObject<HTMLInputElement | null>, n: number }) {
     return (
         <>
             <div className="searchBar">
