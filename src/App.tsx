@@ -1,4 +1,4 @@
-import { act, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import './App.css'
 import type { State, Action, Item } from "./types"
 
@@ -42,12 +42,6 @@ function App() {
               setCount((x) => x - state.items[idx].qty);
               SetSum((x) => x - state.items[idx].price * state.items[idx].qty)
               return { items: state.items.filter((item) => item.id !== action.item.id)}
-              // if (state.items[idx].qty == 1) {
-              //   return { items: [...state.items.slice(0, idx), ...state.items.slice(idx + 1)]};
-              // } else {
-              //   state.items[idx].qty -= 1;
-              //   return { items: [...state.items] };
-              // }
             }
           case "clear":
               setCount(() => 0);
@@ -60,6 +54,18 @@ function App() {
 
   const [cart, dispatch] = useReducer(cartReducer, initialCart);
 
+  const onAdd = useCallback(
+    (product: Item) => dispatch({ type: "add", item: product }), []
+  )
+
+  const onRemove = useCallback(
+    (product: Item) => dispatch({ type: "remove", item: product }), []
+  )
+
+  const onClear = useCallback(
+    () => dispatch({ type: "clear" }), []
+  )
+
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     inputRef.current?.focus();
@@ -68,9 +74,9 @@ function App() {
   return (
     <>
       <div className='site'>
-        <Header count={count} sum={sum} dispatch={dispatch}></Header>
+        <Header count={count} sum={sum} onClear={onClear}></Header>
         <SearchBar setQuery={setQuery} onlyInStock={onlyInStock} setOnlyInStock={setOnlyInStock} inputRef={inputRef} n={visible.length}/>
-        <ProductList products={visible} dispatch={dispatch} cart={cart} />
+        <ProductList products={visible} onAdd={onAdd} onRemove={onRemove} cart={cart} />
       </div>
     </>
   )

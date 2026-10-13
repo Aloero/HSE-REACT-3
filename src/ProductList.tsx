@@ -1,7 +1,9 @@
-import type { Action, Products, State } from "./types";
+import { memo } from "react";
+import type { Products, State, Item } from "./types";
 
-export function ProductCard({ id, title, price, inStock, dispatch, qtyinCart }: {id: number, title: string, price: number, inStock: Boolean, dispatch: (action: Action) => void, qtyinCart: number }) {
+const ProductCard = memo(function ProductCard({ id, title, price, inStock, onAdd, onRemove, qtyinCart }: {id: number, title: string, price: number, inStock: Boolean, onAdd: (product: Item) => void, onRemove: (product: Item) => void, qtyinCart: number }) {
     const inCart: Boolean = qtyinCart > 0;
+    console.log("render", id);
     return (
         <>
             <div className="ProductCard">
@@ -11,30 +13,29 @@ export function ProductCard({ id, title, price, inStock, dispatch, qtyinCart }: 
                 {inStock ? (
                     inCart ? (
                     <div className="wrap_button">
-                        <button className="button" onClick={() => dispatch({ type: "add", item: { id: id, price: price, qty: +1 }})}>{`В корзине: ${qtyinCart}`}</button>
-                        <button className="button" onClick={() => dispatch({ type: "remove", item: { id: id, price: price, qty: -1 }})}>Убрать</button>
+                        <button className="button" onClick={() => onAdd({ id: id, price: price, qty: +1 })}>{`В корзине: ${qtyinCart}`}</button>
+                        <button className="button" onClick={() => onRemove({ id: id, price: price, qty: -1 })}>Убрать</button>
                     </div>
                 ) : (
-                    <button className="button" onClick={() => dispatch({ type: "add", item: { id: id, price: price, qty: +1 }})}>В корзину</button>
+                    <button className="button" onClick={() => onAdd({ id: id, price: price, qty: +1 })}>В корзину</button>
                 )
                 ) : null}
             </div>
         </>
     );
-}
+});
 
-export default function ProductList({ products, dispatch, cart }: {products: Products, dispatch: (action: Action) => void, cart: State }) {
+export default function ProductList({ products, onAdd, onRemove, cart }: {products: Products, onAdd: (product: Item) => void, onRemove: (product: Item) => void, cart: State }) {
     const array_incard = Array(products.length).fill(0);
     cart.items.forEach(element => {
         array_incard[element.id] = element.qty;
     });
 
-
     return (
         <>
             <div className="ProductList">
                 {products.map((product) => (
-                    ProductCard({...product, dispatch, qtyinCart: array_incard[product.id]})
+                    <ProductCard key={product.id} {...product} onAdd={onAdd} onRemove={onRemove} qtyinCart={array_incard[product.id]}/>
                 ))}
             </div>
         </>
